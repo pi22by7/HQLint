@@ -1,0 +1,123 @@
+{
+  "name": "hql-linter-formatter",
+  "displayName": "HQL Linter & Formatter",
+  "description": "Linting and formatting support for HQL (Hive Query Language)",
+  "version": "0.1.0",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Formatters",
+    "Programming Languages"
+  ],
+  "keywords": [
+    "hql",
+    "hive",
+    "sql",
+    "linter",
+    "formatter"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "hql",
+        "aliases": [
+          "HQL",
+          "Hive",
+          "hql"
+        ],
+        "extensions": [
+          ".hql",
+          ".hive"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "hql",
+        "scopeName": "source.hql",
+        "path": "./syntaxes/hql.tmLanguage.json"
+      }
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "HQL",
+      "properties": {
+        "hql.linting.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable HQL linting"
+        },
+        "hql.linting.severity": {
+          "type": "string",
+          "enum": [
+            "Error",
+            "Warning",
+            "Information",
+            "Hint"
+          ],
+          "default": "Warning",
+          "description": "Severity level for linting diagnostics"
+        },
+        "hql.formatting.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable HQL formatting"
+        },
+        "hql.formatting.indentSize": {
+          "type": "number",
+          "default": 2,
+          "description": "Number of spaces for indentation"
+        },
+        "hql.formatting.uppercaseKeywords": {
+          "type": "boolean",
+          "default": true,
+          "description": "Convert keywords to uppercase"
+        },
+        "hql.formatting.newlineBeforeKeywords": {
+          "type": "boolean",
+          "default": true,
+          "description": "Add newline before major keywords (SELECT, FROM, WHERE, etc.)"
+        },
+        "hql.formatting.alignCommas": {
+          "type": "boolean",
+          "default": false,
+          "description": "Align commas in SELECT lists"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "hql.formatDocument",
+        "title": "Format HQL Document",
+        "category": "HQL"
+      },
+      {
+        "command": "hql.lintDocument",
+        "title": "Lint HQL Document",
+        "category": "HQL"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.x",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {}
+}

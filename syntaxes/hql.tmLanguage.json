@@ -1,0 +1,138 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "HQL",
+  "scopeName": "source.hql",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "include": "#keywords"
+    },
+    {
+      "include": "#functions"
+    },
+    {
+      "include": "#operators"
+    },
+    {
+      "include": "#numbers"
+    },
+    {
+      "include": "#variables"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-dash.hql",
+          "match": "--.*$"
+        },
+        {
+          "name": "comment.block.hql",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.single.hql",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.hql",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.double.hql",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.hql",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.backtick.hql",
+          "begin": "`",
+          "end": "`"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.hql",
+          "match": "\\b(?i)(SELECT|FROM|WHERE|GROUP BY|HAVING|ORDER BY|LIMIT|OFFSET|UNION|INTERSECT|EXCEPT|JOIN|INNER JOIN|LEFT JOIN|RIGHT JOIN|FULL OUTER JOIN|CROSS JOIN|ON|USING|AS|DISTINCT|ALL|AND|OR|NOT|IN|EXISTS|BETWEEN|LIKE|RLIKE|REGEXP|IS NULL|IS NOT NULL|CASE|WHEN|THEN|ELSE|END)\\b"
+        },
+        {
+          "name": "keyword.other.ddl.hql",
+          "match": "\\b(?i)(CREATE|DROP|ALTER|TRUNCATE|RENAME|SHOW|DESCRIBE|DESC|EXPLAIN|MSCK|ANALYZE|DATABASE|SCHEMA|TABLE|EXTERNAL|TEMPORARY|VIEW|PARTITION|PARTITIONED BY|CLUSTERED BY|SORTED BY|INTO|BUCKETS|ROW FORMAT|SERDE|STORED AS|LOCATION|TBLPROPERTIES|IF EXISTS|IF NOT EXISTS)\\b"
+        },
+        {
+          "name": "keyword.other.dml.hql",
+          "match": "\\b(?i)(INSERT|UPDATE|DELETE|MERGE|LOAD|EXPORT|IMPORT|INTO|OVERWRITE|VALUES|SET)\\b"
+        },
+        {
+          "name": "storage.type.hql",
+          "match": "\\b(?i)(INT|TINYINT|SMALLINT|BIGINT|FLOAT|DOUBLE|DECIMAL|NUMERIC|BOOLEAN|STRING|VARCHAR|CHAR|TIMESTAMP|DATE|BINARY|ARRAY|MAP|STRUCT|UNIONTYPE)\\b"
+        },
+        {
+          "name": "constant.language.hql",
+          "match": "\\b(?i)(TRUE|FALSE|NULL)\\b"
+        }
+      ]
+    },
+    "functions": {
+      "patterns": [
+        {
+          "name": "entity.name.function.hql",
+          "match": "\\b(?i)(COUNT|SUM|AVG|MIN|MAX|CONCAT|SUBSTR|SUBSTRING|UPPER|LOWER|TRIM|LTRIM|RTRIM|LENGTH|CAST|COALESCE|NVL|IF|ISNULL|YEAR|MONTH|DAY|HOUR|MINUTE|SECOND|DATE_ADD|DATE_SUB|DATEDIFF|FROM_UNIXTIME|UNIX_TIMESTAMP|COLLECT_LIST|COLLECT_SET|EXPLODE|LATERAL VIEW|ROW_NUMBER|RANK|DENSE_RANK|LEAD|LAG|FIRST_VALUE|LAST_VALUE|OVER|PARTITION BY|NTILE)\\b"
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.comparison.hql",
+          "match": "(=|!=|<>|<|>|<=|>=)"
+        },
+        {
+          "name": "keyword.operator.arithmetic.hql",
+          "match": "(\\+|-|\\*|/|%)"
+        },
+        {
+          "name": "keyword.operator.logical.hql",
+          "match": "\\b(?i)(AND|OR|NOT)\\b"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hql",
+          "match": "\\b\\d+(\\.\\d+)?\\b"
+        }
+      ]
+    },
+    "variables": {
+      "patterns": [
+        {
+          "name": "variable.other.hql",
+          "match": "\\$\\{[^}]+\\}"
+        }
+      ]
+    }
+  }
+}
