@@ -1,9 +1,9 @@
 {
-  "name": "hql-linter-formatter",
-  "displayName": "HQL Linter & Formatter",
-  "description": "Linting and formatting support for HQL (Hive Query Language)",
+  "name": "hqlint",
+  "displayName": "HQLint - Hive QL Linter and Formatter",
+  "description": "Real-time linting, formatting, and syntax highlighting for HQL (Hive Query Language)",
   "version": "0.1.0",
-  "publisher": "your-publisher-name",
+  "publisher": "pi22by7",
   "engines": {
     "vscode": "^1.85.0"
   },
