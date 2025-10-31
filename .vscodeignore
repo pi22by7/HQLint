@@ -7,3 +7,5 @@ src/**
 **/*.ts
 tsconfig.json
 assets/logo.png
+examples/**
+.github/**
