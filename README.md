@@ -18,21 +18,25 @@ Detects syntax errors and issues as you type:
 - **Missing clauses**: JOIN without ON/USING, incomplete statements
 - **Style issues**: Lowercase keywords, trailing whitespace
 - **Best practices**: SELECT \* usage, GROUP BY without aggregates
+- **Quick fixes**: One-click fixes for common issues (uppercase keywords, add semicolons, remove whitespace, close quotes)
 
-### ✨ Smart Formatting
+### ✨ Professional-Grade Formatting
 
-Auto-format your HQL with a single command:
+Powered by the industry-standard `sql-formatter` library with extensive customization:
 
-- Uppercase SQL keywords for consistency
-- Proper indentation for readability
-- Newlines before major clauses (SELECT, FROM, WHERE, etc.)
-- Optional comma alignment in SELECT lists
+- **Case control**: Separate settings for keywords, data types, functions, and identifiers (upper/lower/preserve)
+- **Indentation styles**: Standard, tabular left-aligned, or tabular right-aligned
+- **Flexible spacing**: Control tabs vs spaces, operator density, query separation
+- **Configurable layout**: Semicolon placement, line breaks, and more
+- **10+ formatting options** to match your team's style guide
 
-### 💡 IntelliSense
+### 💡 Intelligent IntelliSense
 
-- **Auto-completion** for HQL keywords and functions
-- **Hover documentation** for quick reference
-- **Code actions** with automatic quick fixes
+- **150+ keywords and functions** with context-aware auto-completion
+- **Enhanced hover documentation** with syntax, examples, and links to Apache Hive docs
+- **Signature help** showing parameter hints and documentation as you type
+- **9 code snippets** for common patterns (CREATE TABLE, JOINs, window functions, CTEs, etc.)
+- **Quick fixes** for common issues with one-click solutions
 
 ### 🎨 Syntax Highlighting
 
@@ -121,24 +125,49 @@ Customize the extension behavior in VS Code settings:
 
   // Formatting
   "hql.formatting.enabled": true,
-  "hql.formatting.indentSize": 2,
-  "hql.formatting.uppercaseKeywords": true,
-  "hql.formatting.newlineBeforeKeywords": true,
-  "hql.formatting.alignCommas": false
+  "hql.formatting.tabWidth": 2,
+  "hql.formatting.useTabs": false,
+  "hql.formatting.keywordCase": "upper", // upper, lower, or preserve
+  "hql.formatting.dataTypeCase": "upper",
+  "hql.formatting.functionCase": "upper",
+  "hql.formatting.identifierCase": "preserve",
+  "hql.formatting.indentStyle": "standard", // standard, tabularLeft, or tabularRight
+  "hql.formatting.linesBetweenQueries": 1,
+  "hql.formatting.denseOperators": false,
+  "hql.formatting.newlineBeforeSemicolon": false,
+
+  // Logging
+  "hql.logLevel": "info" // debug, info, warn, or error
 }
 ```
 
 ### Configuration Options
 
-| Setting                                | Type    | Default     | Description                        |
-| -------------------------------------- | ------- | ----------- | ---------------------------------- |
-| `hql.linting.enabled`                  | boolean | `true`      | Enable/disable linting             |
-| `hql.linting.severity`                 | string  | `"Warning"` | Severity level for diagnostics     |
-| `hql.formatting.enabled`               | boolean | `true`      | Enable/disable formatting          |
-| `hql.formatting.indentSize`            | number  | `2`         | Spaces per indentation level       |
-| `hql.formatting.uppercaseKeywords`     | boolean | `true`      | Convert keywords to uppercase      |
-| `hql.formatting.newlineBeforeKeywords` | boolean | `true`      | Add newlines before major keywords |
-| `hql.formatting.alignCommas`           | boolean | `false`     | Align commas in SELECT lists       |
+#### Linting
+| Setting                  | Type    | Default     | Description                    |
+| ------------------------ | ------- | ----------- | ------------------------------ |
+| `hql.linting.enabled`    | boolean | `true`      | Enable/disable linting         |
+| `hql.linting.severity`   | string  | `"Warning"` | Severity level for diagnostics |
+
+#### Formatting
+| Setting                                 | Type    | Default      | Description                                    |
+| --------------------------------------- | ------- | ------------ | ---------------------------------------------- |
+| `hql.formatting.enabled`                | boolean | `true`       | Enable/disable formatting                      |
+| `hql.formatting.tabWidth`               | number  | `2`          | Number of spaces per indentation (1-8)         |
+| `hql.formatting.useTabs`                | boolean | `false`      | Use tabs instead of spaces                     |
+| `hql.formatting.keywordCase`            | string  | `"upper"`    | Case for SQL keywords                          |
+| `hql.formatting.dataTypeCase`           | string  | `"upper"`    | Case for data types                            |
+| `hql.formatting.functionCase`           | string  | `"upper"`    | Case for function names                        |
+| `hql.formatting.identifierCase`         | string  | `"preserve"` | Case for identifiers (tables/columns)          |
+| `hql.formatting.indentStyle`            | string  | `"standard"` | Indentation style                              |
+| `hql.formatting.linesBetweenQueries`    | number  | `1`          | Blank lines between queries (0-5)              |
+| `hql.formatting.denseOperators`         | boolean | `false`      | Use compact operator spacing                   |
+| `hql.formatting.newlineBeforeSemicolon` | boolean | `false`      | Place semicolon on new line                    |
+
+#### Logging
+| Setting         | Type   | Default  | Description                   |
+| --------------- | ------ | -------- | ----------------------------- |
+| `hql.logLevel`  | string | `"info"` | Logging verbosity level       |
 
 ## Example
 
