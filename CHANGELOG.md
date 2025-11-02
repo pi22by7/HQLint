@@ -2,6 +2,77 @@
 
 All notable changes to the HQLint extension will be documented in this file.
 
+## [0.3.0] - 2024-11-02
+
+### Added
+
+#### Testing Infrastructure
+- Complete test suite with Mocha and Chai
+- VSCode test runner integration (@vscode/test-electron)
+- 50+ unit tests for string utilities covering edge cases
+- 30+ integration tests for formatting, linting, IntelliSense, and code actions
+- Test coverage for all core functionality
+- Automated test discovery with glob patterns
+
+#### Granular Linting Configuration
+- Per-rule configuration options for fine-grained control:
+  - `hql.linting.rules.keywordCasing` - Toggle keyword casing checks
+  - `hql.linting.rules.semicolon` - Toggle semicolon checks
+  - `hql.linting.rules.stringLiteral` - Toggle string literal checks
+  - `hql.linting.rules.parentheses` - Toggle parentheses balance checks
+  - `hql.linting.rules.trailingWhitespace` - Toggle whitespace checks
+- File size limit configuration (`hql.linting.maxFileSize`) to skip linting large files (default: 1MB)
+- Automatic file size checking before linting to prevent performance issues
+
+#### Documentation
+- **API.md** - Comprehensive API documentation for developers:
+  - Architecture overview with detailed module descriptions
+  - Complete API reference for all classes and functions
+  - Configuration schema documentation
+  - Extension points guide for adding new features
+  - Performance considerations and best practices
+- **CONTRIBUTING.md** - Complete contributor guide:
+  - Development setup instructions
+  - Coding standards and style guide
+  - Testing guidelines with examples
+  - Pull request process and checklist
+  - Feature addition guides (lint rules, commands, formatters)
+  - Issue reporting templates
+
+### Improved
+
+#### Performance
+- Linter now respects file size limits to prevent hanging on large files
+- Only enabled lint rules are executed, reducing overhead
+- Better logging of rule execution for performance monitoring
+
+#### Developer Experience
+- Comprehensive test suite ensures reliability
+- Clear API documentation for contributors
+- Structured contributing guidelines
+- All modules fully documented with usage examples
+
+#### Code Quality
+- Better separation of concerns with rule configuration handling
+- Improved error messages with file size context
+- Enhanced logging throughout the linting pipeline
+
+### Technical
+
+#### Architecture
+- Test infrastructure with proper VS Code integration
+- Modular rule configuration system
+- File size validation in linter
+- Rule name to config key mapping for flexibility
+
+#### Dependencies
+- Added `@vscode/test-electron` for integration testing
+- Added `mocha` and `@types/mocha` for test framework
+- Added `chai` and `@types/chai` for assertions
+- Added `glob` and `@types/glob` for test discovery
+
+---
+
 ## [0.2.0] - 2024-11-02
 
 ### Added

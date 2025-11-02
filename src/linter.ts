@@ -32,10 +32,39 @@ export class HQLLinter {
         ];
     }
 
+    private getEnabledRules(): LintRule[] {
+        const config = vscode.workspace.getConfiguration('hql.linting.rules');
+        return this.rules.filter(rule => {
+            // Map rule names to config keys
+            const configKey = this.getRuleConfigKey(rule.name);
+            return config.get<boolean>(configKey, true);
+        });
+    }
+
+    private getRuleConfigKey(ruleName: string): string {
+        // Convert rule names to config keys
+        // e.g., 'keyword-casing' -> 'keywordCasing'
+        return ruleName.replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+    }
+
     public lint(document: vscode.TextDocument): void {
         try {
             this.logger.debug(`Linting document: ${document.uri.toString()}`);
+
+            // Check file size limit
+            const config = vscode.workspace.getConfiguration('hql.linting');
+            const maxFileSize = config.get<number>('maxFileSize', 1048576); // Default 1MB
+            const fileSize = Buffer.byteLength(document.getText(), 'utf8');
+
+            if (fileSize > maxFileSize) {
+                this.logger.warn(`File size ${fileSize} bytes exceeds limit ${maxFileSize} bytes. Skipping linting.`);
+                this.diagnosticsProvider.set(document.uri, []);
+                return;
+            }
+
             const diagnostics: vscode.Diagnostic[] = [];
+            const enabledRules = this.getEnabledRules();
+            this.logger.debug(`Running ${enabledRules.length} enabled rules`);
 
             for (let i = 0; i < document.lineCount; i++) {
                 const line = document.lineAt(i);
@@ -48,7 +77,7 @@ export class HQLLinter {
                     logger: this.logger
                 };
 
-                for (const rule of this.rules) {
+                for (const rule of enabledRules) {
                     try {
                         const diagnostic = rule.check(context);
                         if (diagnostic) {

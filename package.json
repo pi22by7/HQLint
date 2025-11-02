@@ -2,7 +2,7 @@
   "name": "hqlint",
   "displayName": "HQLint - Hive QL Linter and Formatter",
   "description": "Real-time linting, formatting, and syntax highlighting for HQL (Hive Query Language)",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "publisher": "pi22by7",
   "repository": {
     "type": "git",
@@ -73,6 +73,37 @@
           "default": "Warning",
           "description": "Severity level for linting diagnostics"
         },
+        "hql.linting.rules.keywordCasing": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check for lowercase SQL keywords"
+        },
+        "hql.linting.rules.semicolon": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check for missing semicolons"
+        },
+        "hql.linting.rules.stringLiteral": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check for unclosed string literals"
+        },
+        "hql.linting.rules.parentheses": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check for unbalanced parentheses"
+        },
+        "hql.linting.rules.trailingWhitespace": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check for trailing whitespace"
+        },
+        "hql.linting.maxFileSize": {
+          "type": "number",
+          "default": 1048576,
+          "minimum": 1024,
+          "description": "Maximum file size in bytes to lint (default 1MB)"
+        },
         "hql.formatting.enabled": {
           "type": "boolean",
           "default": true,
@@ -92,31 +123,51 @@
         },
         "hql.formatting.keywordCase": {
           "type": "string",
-          "enum": ["upper", "lower", "preserve"],
+          "enum": [
+            "upper",
+            "lower",
+            "preserve"
+          ],
           "default": "upper",
           "description": "Case transformation for SQL keywords"
         },
         "hql.formatting.dataTypeCase": {
           "type": "string",
-          "enum": ["upper", "lower", "preserve"],
+          "enum": [
+            "upper",
+            "lower",
+            "preserve"
+          ],
           "default": "upper",
           "description": "Case transformation for data types"
         },
         "hql.formatting.functionCase": {
           "type": "string",
-          "enum": ["upper", "lower", "preserve"],
+          "enum": [
+            "upper",
+            "lower",
+            "preserve"
+          ],
           "default": "upper",
           "description": "Case transformation for function names"
         },
         "hql.formatting.identifierCase": {
           "type": "string",
-          "enum": ["upper", "lower", "preserve"],
+          "enum": [
+            "upper",
+            "lower",
+            "preserve"
+          ],
           "default": "preserve",
           "description": "Case transformation for identifiers (table/column names)"
         },
         "hql.formatting.indentStyle": {
           "type": "string",
-          "enum": ["standard", "tabularLeft", "tabularRight"],
+          "enum": [
+            "standard",
+            "tabularLeft",
+            "tabularRight"
+          ],
           "default": "standard",
           "description": "Indentation style (standard, tabular left-aligned, or tabular right-aligned)"
         },
@@ -172,11 +223,18 @@
     "test": "node ./out/test/runTest.js"
   },
   "devDependencies": {
+    "@types/chai": "^5.2.3",
+    "@types/glob": "^8.1.0",
+    "@types/mocha": "^10.0.10",
     "@types/node": "^24.x",
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^8.46.2",
     "@typescript-eslint/parser": "^8.46.2",
+    "@vscode/test-electron": "^2.5.2",
+    "chai": "^6.2.0",
     "eslint": "^9.38.0",
+    "glob": "^11.0.3",
+    "mocha": "^11.7.4",
     "typescript": "^5.9.3"
   },
   "dependencies": {

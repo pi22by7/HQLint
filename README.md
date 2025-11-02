@@ -122,6 +122,12 @@ Customize the extension behavior in VS Code settings:
   // Linting
   "hql.linting.enabled": true,
   "hql.linting.severity": "Warning", // Error, Warning, Information, or Hint
+  "hql.linting.maxFileSize": 1048576, // Maximum file size to lint (1MB)
+  "hql.linting.rules.keywordCasing": true,
+  "hql.linting.rules.semicolon": true,
+  "hql.linting.rules.stringLiteral": true,
+  "hql.linting.rules.parentheses": true,
+  "hql.linting.rules.trailingWhitespace": true,
 
   // Formatting
   "hql.formatting.enabled": true,
@@ -144,10 +150,16 @@ Customize the extension behavior in VS Code settings:
 ### Configuration Options
 
 #### Linting
-| Setting                  | Type    | Default     | Description                    |
-| ------------------------ | ------- | ----------- | ------------------------------ |
-| `hql.linting.enabled`    | boolean | `true`      | Enable/disable linting         |
-| `hql.linting.severity`   | string  | `"Warning"` | Severity level for diagnostics |
+| Setting                                 | Type    | Default     | Description                                |
+| --------------------------------------- | ------- | ----------- | ------------------------------------------ |
+| `hql.linting.enabled`                   | boolean | `true`      | Enable/disable linting                     |
+| `hql.linting.severity`                  | string  | `"Warning"` | Severity level for diagnostics             |
+| `hql.linting.maxFileSize`               | number  | `1048576`   | Maximum file size to lint (bytes)          |
+| `hql.linting.rules.keywordCasing`       | boolean | `true`      | Check for lowercase SQL keywords           |
+| `hql.linting.rules.semicolon`           | boolean | `true`      | Check for missing semicolons               |
+| `hql.linting.rules.stringLiteral`       | boolean | `true`      | Check for unclosed string literals         |
+| `hql.linting.rules.parentheses`         | boolean | `true`      | Check for unbalanced parentheses           |
+| `hql.linting.rules.trailingWhitespace`  | boolean | `true`      | Check for trailing whitespace              |
 
 #### Formatting
 | Setting                                 | Type    | Default      | Description                                    |
