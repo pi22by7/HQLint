@@ -26,7 +26,9 @@ suite('String Utils Test Suite', () => {
         });
 
         test('should handle multiple escaped quotes', () => {
-            assert.strictEqual(countUnescapedQuotes("'\\'\\'\\'", "'"), 2);
+            // String is '\'\'\ which has: opening ', escaped \', escaped \', closing ' = 1 unescaped (just the opening)
+            // Actually the string ends without closing, so just 1 unescaped quote at start
+            assert.strictEqual(countUnescapedQuotes("'\\'\\'\\'", "'"), 1);
         });
 
         test('should handle no quotes', () => {

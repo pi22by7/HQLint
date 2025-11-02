@@ -1,0 +1,172 @@
+
+> hqlint@0.3.0 pretest
+> npm run compile && npm run lint
+
+
+> hqlint@0.3.0 compile
+> tsc -p ./
+
+
+> hqlint@0.3.0 lint
+> eslint src --ext ts
+
+
+> hqlint@0.3.0 test
+> node ./out/test/runTest.js
+
+- Resolving version...
+✔ Validated version: 1.105.1
+✔ Found existing install in /home/pipi/Projects/FOSS/HQL VSCode/.vscode-test/vscode-linux-x64-1.105.1
+Gtk-Message: 09:51:57.403: Failed to load module "appmenu-gtk-module"
+[90m[main 2025-11-02T04:21:57.537Z][0m update#setState disabled
+[90m[main 2025-11-02T04:21:57.538Z][0m update#ctor - updates are disabled by the environment
+
+(code:14342): LIBDBUSMENU-GLIB-WARNING **: 09:51:57.570: About to Show called on an item wihtout submenus.  We're ignoring it.
+
+(code:14342): LIBDBUSMENU-GLIB-WARNING **: 09:51:57.570: About to Show called on an item wihtout submenus.  We're ignoring it.
+ChatSessionStore: Migrating 0 chat sessions from storage service to file system
+Loading development extension at /home/pipi/Projects/FOSS/HQL VSCode
+Started local extension host with pid 15386.
+MCP Registry configured: https://api.mcp.github.com/2025-09-15
+Settings Sync: Account status changed from uninitialized to unavailable
+[0m[0m
+[0m  String Utils Test Suite[0m
+[0m    countUnescapedQuotes[0m
+    [32m  ✔[0m[90m should count simple quotes[0m
+    [32m  ✔[0m[90m should handle escaped quotes correctly[0m
+    [32m  ✔[0m[90m should handle double backslashes[0m
+    [32m  ✔[0m[90m should handle multiple escaped quotes[0m
+    [32m  ✔[0m[90m should handle no quotes[0m
+    [32m  ✔[0m[90m should handle empty string[0m
+    [32m  ✔[0m[90m should handle only quotes[0m
+    [32m  ✔[0m[90m should handle mixed escaped and unescaped[0m
+[0m    removeComments[0m
+    [32m  ✔[0m[90m should remove line comments[0m
+    [32m  ✔[0m[90m should remove block comments[0m
+    [32m  ✔[0m[90m should handle multiple block comments[0m
+    [32m  ✔[0m[90m should handle no comments[0m
+    [32m  ✔[0m[90m should handle empty string[0m
+    [32m  ✔[0m[90m should handle line starting with comment[0m
+    [32m  ✔[0m[90m should preserve code before line comment[0m
+[0m    isQuoteEscaped[0m
+    [32m  ✔[0m[90m should detect escaped quotes[0m
+    [32m  ✔[0m[90m should detect unescaped quotes[0m
+    [32m  ✔[0m[90m should handle double backslashes[0m
+    [32m  ✔[0m[90m should handle triple backslashes[0m
+    [32m  ✔[0m[90m should handle position 0[0m
+    [32m  ✔[0m[90m should handle no backslashes[0m
+[0m    validateConfigNumber[0m
+    [32m  ✔[0m[90m should clamp values within range[0m
+    [32m  ✔[0m[90m should return default for invalid values[0m
+    [32m  ✔[0m[90m should handle boundary values[0m
+    [32m  ✔[0m[90m should handle negative ranges[0m
+    [32m  ✔[0m[90m should handle floating point numbers[0m
+[0m    findLastOccurrence[0m
+    [32m  ✔[0m[90m should find last occurrence[0m
+    [32m  ✔[0m[90m should return -1 for not found[0m
+    [32m  ✔[0m[90m should handle empty string[0m
+    [32m  ✔[0m[90m should handle single character[0m
+    [32m  ✔[0m[90m should handle special characters[0m
+[0m    countOutsideStrings[0m
+    [32m  ✔[0m[90m should count characters outside strings[0m
+    [32m  ✔[0m[90m should ignore characters inside strings[0m
+    [32m  ✔[0m[90m should handle escaped quotes[0m
+    [32m  ✔[0m[90m should handle mixed quote types[0m
+    [32m  ✔[0m[90m should handle no strings[0m
+    [32m  ✔[0m[90m should handle empty string[0m
+    [32m  ✔[0m[90m should handle only strings[0m
+    [32m  ✔[0m[90m should handle nested quotes[0m
+    [32m  ✔[0m[90m should handle parentheses[0m
+    [32m  ✔[0m[90m should handle unclosed strings gracefully[0m
+[0m  HQL Extension Integration Test Suite[0m
+[0m    Extension Activation[0m
+    [32m  ✔[0m[90m Extension should be present[0m
+    [32m  ✔[0m[90m Extension should activate[0m
+[0m    Language Support[0m
+    [32m  ✔[0m[90m HQL language should be registered[0m
+[0m    Formatter Integration[0m
+    [31m  1) Should format simple SELECT statement[0m
+    [31m  2) Should respect formatting configuration[0m
+    [32m  ✔[0m[90m Should handle malformed SQL gracefully[0m
+[0m    Linter Integration[0m
+    [32m  ✔[0m[90m Should detect lowercase keywords[0m[31m (1032ms)[0m
+    [32m  ✔[0m[90m Should detect missing semicolons[0m[31m (1034ms)[0m
+    [32m  ✔[0m[90m Should detect unclosed strings[0m[31m (1019ms)[0m
+    [32m  ✔[0m[90m Should detect unbalanced parentheses[0m[31m (1022ms)[0m
+    [32m  ✔[0m[90m Should respect linting configuration[0m[31m (1077ms)[0m
+[0m    IntelliSense Integration[0m
+    [32m  ✔[0m[90m Should provide completions for HQL keywords[0m
+    [32m  ✔[0m[90m Should provide hover information[0m
+    [32m  ✔[0m[90m Should provide signature help for functions[0m
+[0m    Code Actions[0m
+    [31m  3) Should provide quick fixes for issues[0m
+[0m    Configuration[0m
+    [32m  ✔[0m[90m Should read configuration values[0m
+    [31m  4) Should have valid default values[0m
+[92m [0m[32m 54 passing[0m[90m (6s)[0m
+[31m  4 failing[0m
+[0m  1) HQL Extension Integration Test Suite
+       Formatter Integration
+         Should format simple SELECT statement:
+
+      [31mAssertionError [ERR_ASSERTION]: Expected SELECT in: 
+[0m
+      [32m+ expected[0m [31m- actual[0m
+
+      [31m-false[0m
+      [32m+true[0m
+      [0m[90m
+  	at Context.<anonymous> (out/test/suite/extension.test.js:72:20)
+[0m
+[0m  2) HQL Extension Integration Test Suite
+       Formatter Integration
+         Should respect formatting configuration:
+
+      [31mAssertionError [ERR_ASSERTION]: Expected from in: select
+ [0m
+      [32m+ expected[0m [31m- actual[0m
+
+      [31m-false[0m
+      [32m+true[0m
+      [0m[90m
+  	at Context.<anonymous> (out/test/suite/extension.test.js:90:20)
+[0m
+[0m  3) HQL Extension Integration Test Suite
+       Code Actions
+         Should provide quick fixes for issues:
+
+      [31mAssertionError [ERR_ASSERTION]: Should have at least one code action available[0m
+      [32m+ expected[0m [31m- actual[0m
+
+      [31m-false[0m
+      [32m+true[0m
+      [0m[90m
+  	at Context.<anonymous> (out/test/suite/extension.test.js:237:20)
+[0m
+[0m  4) HQL Extension Integration Test Suite
+       Configuration
+         Should have valid default values:
+
+      [31mAssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+
+'lower' !== 'upper'
+[0m
+      [32m+ expected[0m [31m- actual[0m
+
+      [31m-lower[0m
+      [32m+upper[0m
+      [0m[90m
+  	at Context.<anonymous> (out/test/suite/extension.test.js:256:20)
+[0m
+Error: 4 tests failed.
+	at /home/pipi/Projects/FOSS/HQL VSCode/out/test/suite/index.js:59:32
+	at done (/home/pipi/Projects/FOSS/HQL VSCode/node_modules/mocha/lib/mocha.js:1000:7)
+[90m[main 2025-11-02T04:22:05.580Z][0m Extension host with pid 15386 exited with code: 0, signal: unknown.
+Exit code:   1
+Failed to run tests: TestRunFailedError: Test run failed with code 1
+    at ChildProcess.onProcessClosed (/home/pipi/Projects/FOSS/HQL VSCode/node_modules/@vscode/test-electron/out/runTest.js:110:24)
+    at ChildProcess.emit (node:events:508:28)
+    at ChildProcess._handle.onexit (node:internal/child_process:293:12) {
+  code: 1,
+  signal: undefined
+}
