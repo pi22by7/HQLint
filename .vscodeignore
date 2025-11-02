@@ -2,18 +2,18 @@
 .vscode/**
 .vscode-test/**
 src/**
-out/test/**
+out/**
 **/*.ts
 **/*.map
 tsconfig.json
+esbuild.js
 eslint.config.js
 .eslintrc.json
 test-output.log
 package-lock.json
 
-# Dependencies (only production deps will be included via package.json)
+# Dependencies (bundled by esbuild, so exclude all)
 node_modules/**
-!node_modules/sql-formatter/**
 
 # Git and CI/CD
 .gitignore
