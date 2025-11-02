@@ -4,6 +4,7 @@ node_modules
 .vscode-test/
 *.vsix
 .DS_Store
+test-output.log
 
 # Claude Code
 CLAUDE.md
