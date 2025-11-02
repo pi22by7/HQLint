@@ -98,6 +98,16 @@
           "default": true,
           "description": "Check for trailing whitespace"
         },
+        "hql.linting.rules.missingComma": {
+          "type": "boolean",
+          "default": true,
+          "description": "Check for possible missing commas in column lists"
+        },
+        "hql.linting.rules.hiveVariable": {
+          "type": "boolean",
+          "default": true,
+          "description": "Validate Hive variable syntax (${hiveconf:varname})"
+        },
         "hql.linting.maxFileSize": {
           "type": "number",
           "default": 1048576,

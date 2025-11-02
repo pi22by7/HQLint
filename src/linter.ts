@@ -8,7 +8,9 @@ import {
     SemicolonRule,
     StringLiteralRule,
     ParenthesesRule,
-    TrailingWhitespaceRule
+    TrailingWhitespaceRule,
+    MissingCommaRule,
+    HiveVariableRule
 } from './linter/rules';
 
 export class HQLLinter {
@@ -29,6 +31,8 @@ export class HQLLinter {
             new StringLiteralRule(),
             new ParenthesesRule(),
             new TrailingWhitespaceRule(),
+            new MissingCommaRule(),
+            new HiveVariableRule(),
         ];
     }
 
