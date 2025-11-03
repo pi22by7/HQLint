@@ -2,6 +2,40 @@
 
 All notable changes to the HQLint extension will be documented in this file.
 
+## [0.4.1] - 2024-11-03
+
+### Fixed
+- **Comment Handling** - Linting rules now properly ignore SQL keywords within comments
+  - KeywordCasingRule no longer flags keywords in `--` or `/* */` comments
+  - SemicolonRule now uses proper comment stripping instead of manual checks
+  - Consistent use of `removeComments()` utility across all content-checking rules
+
+---
+
+## [0.4.0] - 2024-11-02
+
+### Added
+
+#### Production-Focused Lint Rules
+- **Missing Comma Detection** - Detects potential missing commas in SELECT column lists by analyzing line patterns and context
+  - Context-aware checking (looks at surrounding lines)
+  - Validates within SELECT statement scope
+  - Configuration: `hql.linting.rules.missingComma`
+- **Hive Variable Validation** - Validates Hive variable substitution syntax `${namespace:varname}`
+  - Checks for valid namespaces: hiveconf, hivevar, env, system, define
+  - Validates variable names (must start with letter/underscore)
+  - Provides specific error messages for different syntax errors
+  - Configuration: `hql.linting.rules.hiveVariable`
+
+### Improved
+
+#### Code Quality
+- Bundled extension with esbuild for 83% size reduction (924 KB → 155 KB)
+- Production minification for faster extension loading
+- Proper exclusion of dev files from extension package
+
+---
+
 ## [0.3.0] - 2024-11-02
 
 ### Added
