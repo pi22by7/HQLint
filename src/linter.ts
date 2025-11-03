@@ -70,9 +70,54 @@ export class HQLLinter {
             const enabledRules = this.getEnabledRules();
             this.logger.debug(`Running ${enabledRules.length} enabled rules`);
 
+            // Track multi-line comment state
+            let inBlockComment = false;
+
             for (let i = 0; i < document.lineCount; i++) {
                 const line = document.lineAt(i);
-                const text = line.text;
+                let text = line.text;
+
+                // Check for block comment start/end on this line
+                const blockCommentStart = text.indexOf('/*');
+                const blockCommentEnd = text.indexOf('*/');
+
+                // Determine if we're in a block comment for this line
+                let skipLine = false;
+
+                if (inBlockComment) {
+                    // We're already in a block comment
+                    if (blockCommentEnd !== -1) {
+                        // Block comment ends on this line
+                        inBlockComment = false;
+                        // Only process text after the closing */
+                        text = text.substring(blockCommentEnd + 2);
+                        if (text.trim() === '') {
+                            skipLine = true;
+                        }
+                    } else {
+                        // Still inside block comment
+                        skipLine = true;
+                    }
+                } else {
+                    // Not currently in a block comment
+                    if (blockCommentStart !== -1) {
+                        if (blockCommentEnd !== -1 && blockCommentEnd > blockCommentStart) {
+                            // Block comment starts and ends on same line - already handled by removeComments
+                        } else {
+                            // Block comment starts but doesn't end on this line
+                            inBlockComment = true;
+                            // Only process text before the opening /*
+                            text = text.substring(0, blockCommentStart);
+                            if (text.trim() === '') {
+                                skipLine = true;
+                            }
+                        }
+                    }
+                }
+
+                if (skipLine) {
+                    continue;
+                }
 
                 const context: LintContext = {
                     document,

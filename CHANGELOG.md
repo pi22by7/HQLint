@@ -2,6 +2,17 @@
 
 All notable changes to the HQLint extension will be documented in this file.
 
+## [0.4.2] - 2024-11-03
+
+### Fixed
+- **Multi-line Comment Handling** - Linter now properly tracks and skips lines within multi-line `/* */` block comments
+  - Fixed linter to track block comment state across lines
+  - Lines entirely inside block comments are now skipped
+  - Partial lines (code before `/*` or after `*/`) are processed correctly
+  - Eliminates false positives for keywords and syntax inside comments
+
+---
+
 ## [0.4.1] - 2024-11-03
 
 ### Fixed
