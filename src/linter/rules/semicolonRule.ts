@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { BaseLintRule, LintContext } from './baseRule';
+import { removeComments } from '../../utils/stringUtils';
 
 export class SemicolonRule extends BaseLintRule {
     name = 'missing-semicolon';
@@ -7,22 +8,22 @@ export class SemicolonRule extends BaseLintRule {
 
     check(context: LintContext): vscode.Diagnostic | null {
         try {
-            const trimmed = context.lineText.trim();
-            if (trimmed.length === 0 || trimmed.startsWith('--') || trimmed.startsWith('/*')) {
+            const textWithoutComments = removeComments(context.lineText).trim();
+            if (textWithoutComments.length === 0) {
                 return null;
             }
 
             // Check if this is the last non-empty line
             let isLastLine = true;
             for (let i = context.lineNumber + 1; i < context.document.lineCount; i++) {
-                const nextLine = context.document.lineAt(i).text.trim();
-                if (nextLine.length > 0 && !nextLine.startsWith('--') && !nextLine.startsWith('/*')) {
+                const nextLineText = removeComments(context.document.lineAt(i).text).trim();
+                if (nextLineText.length > 0) {
                     isLastLine = false;
                     break;
                 }
             }
 
-            if (isLastLine && !trimmed.endsWith(';')) {
+            if (isLastLine && !textWithoutComments.endsWith(';')) {
                 const range = new vscode.Range(
                     context.lineNumber,
                     context.lineText.length,

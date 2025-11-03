@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { BaseLintRule, LintContext } from './baseRule';
+import { removeComments } from '../../utils/stringUtils';
 
 export class KeywordCasingRule extends BaseLintRule {
     name = 'keyword-casing';
@@ -20,10 +21,12 @@ export class KeywordCasingRule extends BaseLintRule {
 
     check(context: LintContext): vscode.Diagnostic | null {
         try {
+            const textWithoutComments = removeComments(context.lineText);
+
             for (const keyword of this.keywords) {
                 const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
                 let match;
-                while ((match = regex.exec(context.lineText)) !== null) {
+                while ((match = regex.exec(textWithoutComments)) !== null) {
                     if (match[0] !== keyword.toUpperCase()) {
                         const range = new vscode.Range(
                             context.lineNumber,
