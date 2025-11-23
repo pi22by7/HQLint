@@ -27,8 +27,7 @@ suite('HQL Extension Integration Test Suite', () => {
     });
 
     suite('Formatter Integration', () => {
-        test.skip('Should format simple SELECT statement', async function() {
-            // Skipping: sql-formatter behavior in test environment needs investigation
+        test('Should format simple SELECT statement', async function() {
             this.timeout(10000);
 
             const content = 'select * from users where id=1;';
@@ -42,19 +41,28 @@ suite('HQL Extension Integration Test Suite', () => {
                 doc.uri
             );
 
-            assert.ok(edits);
-            assert.ok(Array.isArray(edits));
-            if (edits && edits.length > 0) {
-                const formatted = edits[0].newText;
-                // Should have uppercase keywords
-                assert.ok(formatted.includes('SELECT'), `Expected SELECT in: ${formatted}`);
-                assert.ok(formatted.includes('FROM'), `Expected FROM in: ${formatted}`);
-                assert.ok(formatted.includes('WHERE'), `Expected WHERE in: ${formatted}`);
-            }
+            assert.ok(edits, 'Edits should be returned');
+            assert.ok(Array.isArray(edits), 'Edits should be an array');
+            assert.ok(edits.length > 0, `Expected at least one edit, got ${edits.length}`);
+
+            // Apply all edits to get the full formatted text
+            const workspaceEdit = new vscode.WorkspaceEdit();
+            edits.forEach(edit => {
+                workspaceEdit.replace(doc.uri, edit.range, edit.newText);
+            });
+            await vscode.workspace.applyEdit(workspaceEdit);
+
+            const formatted = doc.getText();
+            assert.ok(formatted, 'Formatted text should not be empty');
+            assert.ok(formatted.length > content.length / 2, `Formatted text too short: ${formatted.length} chars, expected more than ${content.length / 2}`);
+
+            // Should have uppercase keywords
+            assert.ok(formatted.includes('SELECT'), `Expected SELECT in: ${formatted}`);
+            assert.ok(formatted.includes('FROM'), `Expected FROM in: ${formatted}`);
+            assert.ok(formatted.includes('WHERE'), `Expected WHERE in: ${formatted}`);
         });
 
-        test.skip('Should respect formatting configuration', async function() {
-            // Skipping: sql-formatter behavior in test environment needs investigation
+        test('Should respect formatting configuration', async function() {
             this.timeout(10000);
 
             // Set configuration
@@ -72,14 +80,27 @@ suite('HQL Extension Integration Test Suite', () => {
                 doc.uri
             );
 
-            if (edits && edits.length > 0) {
-                const formatted = edits[0].newText.toLowerCase();
-                assert.ok(formatted.includes('select'), `Expected select in: ${formatted}`);
-                assert.ok(formatted.includes('from'), `Expected from in: ${formatted}`);
-            }
+            assert.ok(edits, 'Edits should be returned');
+            assert.ok(Array.isArray(edits), 'Edits should be an array');
+            assert.ok(edits.length > 0, `Expected at least one edit, got ${edits.length}`);
 
-            // Reset configuration
-            await config.update('keywordCase', undefined, vscode.ConfigurationTarget.Global);
+            // Apply all edits to get the full formatted text
+            const workspaceEdit = new vscode.WorkspaceEdit();
+            edits.forEach(edit => {
+                workspaceEdit.replace(doc.uri, edit.range, edit.newText);
+            });
+            await vscode.workspace.applyEdit(workspaceEdit);
+
+            const formatted = doc.getText();
+            assert.ok(formatted, 'Formatted text should not be empty');
+            assert.ok(formatted.length > content.length / 2, `Formatted text too short: ${formatted.length} chars`);
+
+            // Should have lowercase keywords when keywordCase is 'lower'
+            assert.ok(formatted.includes('select'), `Expected select in: ${formatted}`);
+            assert.ok(formatted.includes('from'), `Expected from in: ${formatted}`);
+
+            // Reset configuration back to default
+            await config.update('keywordCase', 'upper', vscode.ConfigurationTarget.Global);
         });
 
         test('Should handle malformed SQL gracefully', async function() {
@@ -293,8 +314,7 @@ suite('HQL Extension Integration Test Suite', () => {
     });
 
     suite('Code Actions', () => {
-        test.skip('Should provide quick fixes for issues', async function() {
-            // Skipping: Code actions provider needs investigation in test environment
+        test('Should provide quick fixes for issues', async function() {
             this.timeout(10000);
 
             const content = 'select * from users;';
@@ -332,9 +352,9 @@ suite('HQL Extension Integration Test Suite', () => {
         });
 
         test('Should have valid default values', async function() {
-            // Reset any modified configuration first
+            // Reset any modified configuration first to defaults
             const formatConfig = vscode.workspace.getConfiguration('hql.formatting');
-            await formatConfig.update('keywordCase', undefined, vscode.ConfigurationTarget.Global);
+            await formatConfig.update('keywordCase', 'upper', vscode.ConfigurationTarget.Global);
 
             // Now check defaults
             const lintConfig = vscode.workspace.getConfiguration('hql.linting');
