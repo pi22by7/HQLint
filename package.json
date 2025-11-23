@@ -2,7 +2,7 @@
   "name": "hqlint",
   "displayName": "HQLint - Hive QL Linter and Formatter",
   "description": "Real-time linting, formatting, and syntax highlighting for HQL (Hive Query Language)",
-  "version": "0.4.2",
+  "version": "0.5.1",
   "publisher": "pi22by7",
   "repository": {
     "type": "git",
@@ -75,8 +75,8 @@
         },
         "hql.linting.rules.keywordCasing": {
           "type": "boolean",
-          "default": true,
-          "description": "Check for lowercase SQL keywords"
+          "default": false,
+          "description": "Check for lowercase SQL keywords (disabled by default)"
         },
         "hql.linting.rules.semicolon": {
           "type": "boolean",
@@ -101,7 +101,7 @@
         "hql.linting.rules.missingComma": {
           "type": "boolean",
           "default": true,
-          "description": "Check for possible missing commas in column lists"
+          "description": "Check for possible missing commas in SELECT column lists"
         },
         "hql.linting.rules.hiveVariable": {
           "type": "boolean",

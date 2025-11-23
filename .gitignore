@@ -1,12 +1,27 @@
-out
-dist
-node_modules
+# Build outputs
+out/
+dist/
+
+# Dependencies
+node_modules/
+
+# VS Code extension testing
 .vscode-test/
+
+# Packaged extension
 *.vsix
+
+# OS files
 .DS_Store
+
+# Test artifacts
 test-output.log
 
-# Claude Code
+# AI assistant files
 CLAUDE.md
 .claude/
 IMPROVEMENT_PLAN.md
+API.md
+
+# In-Memoria database files
+in-memoria*

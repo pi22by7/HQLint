@@ -4,39 +4,67 @@ import { removeComments, countOutsideStrings } from '../../utils/stringUtils';
 
 export class ParenthesesRule extends BaseLintRule {
     name = 'unbalanced-parentheses';
-    description = 'Parentheses must be balanced';
+    description = 'Check for unbalanced parentheses across the entire document';
 
     check(context: LintContext): vscode.Diagnostic | null {
         try {
-            const withoutComments = removeComments(context.lineText);
+            // Only check on the first line to avoid duplicate diagnostics
+            // This rule now checks the entire document for balance
+            if (context.lineNumber !== 0) {
+                return null;
+            }
 
-            const openCount = countOutsideStrings(withoutComments, '(');
-            const closeCount = countOutsideStrings(withoutComments, ')');
+            let totalOpen = 0;
+            let totalClose = 0;
+            let firstUnbalancedLine = -1;
+            let runningBalance = 0;
 
-            if (openCount > closeCount) {
-                const lastOpenIndex = context.lineText.lastIndexOf('(');
+            // Scan entire document to check overall balance
+            for (let i = 0; i < context.document.lineCount; i++) {
+                const lineText = context.document.lineAt(i).text;
+                const withoutComments = removeComments(lineText);
+
+                const openCount = countOutsideStrings(withoutComments, '(');
+                const closeCount = countOutsideStrings(withoutComments, ')');
+
+                totalOpen += openCount;
+                totalClose += closeCount;
+                runningBalance += openCount - closeCount;
+
+                // Track first line where balance goes negative (closing without opening)
+                if (runningBalance < 0 && firstUnbalancedLine === -1) {
+                    firstUnbalancedLine = i;
+                }
+            }
+
+            // Document-level check: if totals don't match, there's an issue
+            if (totalOpen > totalClose) {
+                // More opens than closes - find the last opening paren
+                for (let i = context.document.lineCount - 1; i >= 0; i--) {
+                    const lineText = context.document.lineAt(i).text;
+                    if (lineText.indexOf('(') !== -1) {
+                        const lastOpenIndex = lineText.lastIndexOf('(');
+                        const range = new vscode.Range(i, lastOpenIndex, i, lastOpenIndex + 1);
+                        return this.createDiagnostic(
+                            range,
+                            `Unbalanced parentheses in document - ${totalOpen - totalClose} unclosed parenthesis`,
+                            vscode.DiagnosticSeverity.Error
+                        );
+                    }
+                }
+            } else if (totalClose > totalOpen && firstUnbalancedLine !== -1) {
+                // More closes than opens - flag first line where balance went negative
+                const lineText = context.document.lineAt(firstUnbalancedLine).text;
+                const lastCloseIndex = lineText.lastIndexOf(')');
                 const range = new vscode.Range(
-                    context.lineNumber,
-                    lastOpenIndex,
-                    context.lineNumber,
-                    lastOpenIndex + 1
-                );
-                return this.createDiagnostic(
-                    range,
-                    'Unbalanced parentheses - missing closing parenthesis )',
-                    vscode.DiagnosticSeverity.Error
-                );
-            } else if (closeCount > openCount) {
-                const lastCloseIndex = context.lineText.lastIndexOf(')');
-                const range = new vscode.Range(
-                    context.lineNumber,
+                    firstUnbalancedLine,
                     lastCloseIndex,
-                    context.lineNumber,
+                    firstUnbalancedLine,
                     lastCloseIndex + 1
                 );
                 return this.createDiagnostic(
                     range,
-                    'Unbalanced parentheses - missing opening parenthesis (',
+                    `Unbalanced parentheses - ${totalClose - totalOpen} extra closing parenthesis`,
                     vscode.DiagnosticSeverity.Error
                 );
             }

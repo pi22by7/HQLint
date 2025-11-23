@@ -106,6 +106,10 @@ suite('HQL Extension Integration Test Suite', () => {
         test('Should detect lowercase keywords', async function() {
             this.timeout(10000);
 
+            // Enable keywordCasing rule for this test
+            const config = vscode.workspace.getConfiguration('hql.linting.rules');
+            await config.update('keywordCasing', true, vscode.ConfigurationTarget.Global);
+
             const content = 'select * from users;';
             const doc = await vscode.workspace.openTextDocument({
                 language: 'hql',
@@ -126,6 +130,9 @@ suite('HQL Extension Integration Test Suite', () => {
                 d.message.includes('keyword') && d.message.includes('uppercase')
             );
             assert.ok(hasKeywordWarning);
+
+            // Reset configuration after test
+            await config.update('keywordCasing', false, vscode.ConfigurationTarget.Global);
         });
 
         test('Should detect missing semicolons', async function() {

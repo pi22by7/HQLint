@@ -12,12 +12,13 @@ This extension solves that problem by providing **instant feedback** as you writ
 
 ### 🔍 Real-Time Linting
 
-Detects syntax errors and issues as you type:
+Powered by document-level parsing for accurate error detection:
 
-- **Syntax errors**: Unclosed string literals, unbalanced parentheses
-- **Missing clauses**: JOIN without ON/USING, incomplete statements
-- **Style issues**: Lowercase keywords, trailing whitespace
-- **Best practices**: SELECT \* usage, GROUP BY without aggregates
+- **Syntax errors**: Unclosed string literals, unbalanced parentheses across entire document
+- **Statement validation**: Missing semicolons between statements, respecting subqueries and DDL clauses
+- **SELECT list analysis**: Missing commas between columns (with smart SQL keyword detection)
+- **Hive-specific**: Variable syntax validation (`${hiveconf:varname}`)
+- **Optional style checks**: Lowercase keywords (disabled by default), trailing whitespace
 - **Quick fixes**: One-click fixes for common issues (uppercase keywords, add semicolons, remove whitespace, close quotes)
 
 ### ✨ Professional-Grade Formatting
@@ -155,7 +156,9 @@ Customize the extension behavior in VS Code settings:
 | `hql.linting.enabled`                   | boolean | `true`      | Enable/disable linting                     |
 | `hql.linting.severity`                  | string  | `"Warning"` | Severity level for diagnostics             |
 | `hql.linting.maxFileSize`               | number  | `1048576`   | Maximum file size to lint (bytes)          |
-| `hql.linting.rules.keywordCasing`       | boolean | `true`      | Check for lowercase SQL keywords           |
+| `hql.linting.rules.keywordCasing`       | boolean | `false`     | Check for lowercase SQL keywords (disabled by default) |
+| `hql.linting.rules.missingComma`        | boolean | `true`      | Check for missing commas in SELECT lists   |
+| `hql.linting.rules.hiveVariable`        | boolean | `true`      | Validate Hive variable syntax              |
 | `hql.linting.rules.semicolon`           | boolean | `true`      | Check for missing semicolons               |
 | `hql.linting.rules.stringLiteral`       | boolean | `true`      | Check for unclosed string literals         |
 | `hql.linting.rules.parentheses`         | boolean | `true`      | Check for unbalanced parentheses           |
@@ -180,16 +183,6 @@ Customize the extension behavior in VS Code settings:
 | Setting         | Type   | Default  | Description                   |
 | --------------- | ------ | -------- | ----------------------------- |
 | `hql.logLevel`  | string | `"info"` | Logging verbosity level       |
-
-## Example
-
-**Before:**
-
-```hql
-select id, name, sum(amount) from users left join orders on users.id = orders.user_id where status = 'active' group by id, name
-```
-
-**After:**
 
 ## Examples
 
@@ -290,9 +283,4 @@ MIT
 
 Built with ❤️ to make HQL development faster and more efficient.
 
-```
-
-## License
-
-MIT
-```
+Special thanks to the `sql-formatter` library for providing production-quality SQL formatting.

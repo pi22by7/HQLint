@@ -1,33 +1,51 @@
-# Development files
+# ===============================================
+# Source files (TypeScript compiled to JavaScript)
+# ===============================================
 .vscode/**
 .vscode-test/**
 src/**
 out/**
 **/*.ts
 **/*.map
+
+# ===============================================
+# Build configuration
+# ===============================================
 tsconfig.json
 esbuild.js
 eslint.config.js
 .eslintrc.json
-test-output.log
+
+# ===============================================
+# Dependencies (bundled by esbuild)
+# ===============================================
+node_modules/**
 package-lock.json
 
-# Dependencies (bundled by esbuild, so exclude all)
-node_modules/**
-
+# ===============================================
 # Git and CI/CD
+# ===============================================
 .gitignore
 .github/**
 
-# Build artifacts
+# ===============================================
+# Development artifacts
+# ===============================================
 *.vsix
 .vscodeignore
+test-output.log
 
-# Development assets
+# ===============================================
+# Development assets and examples
+# ===============================================
 assets/logo.png
 examples/**
 
-# Claude Code files (internal development)
+# ===============================================
+# AI assistant files (internal development)
+# ===============================================
 CLAUDE.md
 .claude/**
 IMPROVEMENT_PLAN.md
+API.md
+in-memoria*
