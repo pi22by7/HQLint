@@ -2,6 +2,66 @@
 
 All notable changes to the HQLint extension will be documented in this file.
 
+## [0.5.1] - 2024-11-25
+
+### Fixed
+- **SemicolonRule** - Fixed missing semicolon detection between consecutive queries
+  - Now properly closes previous statement when new statement starts at parentheses depth 0
+  - Correctly identifies statement boundaries in multi-query files
+  - No longer produces false positives for WHERE clauses with subqueries
+- **Test Suite** - Unskipped and fixed all formatter integration tests
+  - Fixed VS Code edit handling (was only reading first of multiple edits)
+  - Fixed config test interference between tests
+  - All 78 tests now passing with zero skipped tests
+- **KeywordCasingRule** - Test now properly enables rule before testing (respects disabled-by-default setting)
+
+### Improved
+- **Code Quality** - Extension now ships quality code with comprehensive test coverage
+  - No lazy heuristics - all rules use proper document-level parsing
+  - All tests verified and passing before release
+
+---
+
+## [0.5.0] - 2024-11-25
+
+### Changed
+- **KeywordCasingRule** - Now disabled by default, can be enabled in settings
+  - Configuration: `hql.linting.rules.keywordCasing` (default: `false`)
+  - Many teams prefer lowercase SQL, so uppercase checking is now opt-in
+
+### Fixed
+- **Document-Level Parsing** - Complete rewrite of linting rules to use proper statement parsing instead of heuristics
+  - **SemicolonRule** - Full document-level statement parser that tracks parentheses depth and identifies statement boundaries
+    - No longer flags lines inside parentheses (subqueries, function calls)
+    - Properly detects missing semicolons at statement boundaries
+    - Handles complex nested queries correctly
+  - **ParenthesesRule** - Document-level checking for balanced parentheses across entire file
+    - Single scan of entire document instead of line-by-line checking
+    - Tracks running balance to identify exact location of imbalance
+  - **MissingCommaRule** - Document-level parser that extracts SELECT column lists and intelligently detects missing commas
+    - Finds SELECT...FROM spans at parentheses depth 0
+    - Checks each line in SELECT column list for missing commas
+    - Skips lines ending with commas, SQL keywords, operators
+    - Detects identifier-to-identifier patterns without commas
+- **Multiline Statement Handling** - No more false positives on multiline queries
+  - WHERE clauses with opening parentheses for subqueries
+  - Partition definitions with balanced parentheses
+  - Window functions and CASE statements
+  - Complex 150+ line queries with multiple nested subqueries
+
+### Improved
+- **Documentation** - Updated all documentation to reflect document-level parsing approach
+  - README.md updated with correct rule descriptions and defaults
+  - CLAUDE.md updated with implementation details for all rules
+  - Prettified .gitignore and .vscodeignore with section headers and comments
+- **Test Coverage** - Added comprehensive multiline query test suite
+  - 17 new tests for multiline scenarios
+  - Tests include 150+ line complex queries
+  - Tests include multiple queries in single file
+  - Tests for all edge cases: subqueries, CTEs, window functions, partitions
+
+---
+
 ## [0.4.2] - 2024-11-03
 
 ### Fixed

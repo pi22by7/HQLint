@@ -49,3 +49,4 @@ CLAUDE.md
 IMPROVEMENT_PLAN.md
 API.md
 in-memoria*
+in-memoria-vectors.db/**
