@@ -5,6 +5,9 @@
   "version": "0.6.0",
   "license": "Apache-2.0",
   "publisher": "pi22by7",
+  "author": {
+    "name": "Piyush Airani"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pi22by7/HQLint.git"

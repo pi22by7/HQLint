@@ -2,7 +2,7 @@
 name = "hql-ls"
 version = "0.1.0"
 edition = "2024"
-authors = ["HQL VSCode Team"]
+authors = ["Piyush Airani"]
 description = "A Language Server for Hive QL (HQL)"
 license = "Apache-2.0"
 
