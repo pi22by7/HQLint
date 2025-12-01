@@ -3,13 +3,27 @@ use sqlparser::dialect::HiveDialect;
 use sqlparser::tokenizer::{Tokenizer, Token, TokenWithSpan};
 use regex::Regex;
 use std::sync::OnceLock;
+use crate::config::LintingConfig;
 
-pub fn lint(text: &str) -> Vec<Diagnostic> {
+pub fn lint(text: &str, config: &LintingConfig) -> Vec<Diagnostic> {
+    if !config.enabled {
+        return vec![];
+    }
+
+    // Check file size
+    if text.len() as u64 > config.max_file_size {
+        return vec![];
+    }
+
     let mut diagnostics = Vec::new();
 
     // 1. Text-based checks
-    diagnostics.extend(check_trailing_whitespace(text));
-    diagnostics.extend(check_hive_variables(text));
+    if config.rules.trailing_whitespace {
+        diagnostics.extend(check_trailing_whitespace(text));
+    }
+    if config.rules.hive_variable {
+        diagnostics.extend(check_hive_variables(text));
+    }
 
     // 2. Tokenization
     let dialect = HiveDialect {};
@@ -18,22 +32,36 @@ pub fn lint(text: &str) -> Vec<Diagnostic> {
     match tokens_result {
         Ok(tokens) => {
             // 3. Token-based checks
-            diagnostics.extend(check_keyword_casing(&tokens));
-            diagnostics.extend(check_semicolons(&tokens));
-            diagnostics.extend(check_parentheses(&tokens));
+            if config.rules.keyword_casing {
+                diagnostics.extend(check_keyword_casing(&tokens));
+            }
+            if config.rules.semicolon {
+                diagnostics.extend(check_semicolons(&tokens));
+            }
+            if config.rules.parentheses {
+                diagnostics.extend(check_parentheses(&tokens));
+            }
+            if config.rules.missing_comma {
+                diagnostics.extend(check_missing_comma(&tokens));
+            }
         }
         Err(e) => {
             // Tokenizer error (e.g. unclosed string)
-            let msg = e.to_string();
-            diagnostics.push(Diagnostic {
-                range: Range::default(), // TODO: parse actual location from error string if possible
-                severity: Some(DiagnosticSeverity::ERROR),
-                source: Some("hql-ls".to_string()),
-                message: msg,
-                ..Default::default()
-            });
+            if config.rules.string_literal {
+                let msg = e.to_string();
+                diagnostics.push(Diagnostic {
+                    range: Range::default(), 
+                    severity: Some(DiagnosticSeverity::ERROR),
+                    source: Some("hql-ls".to_string()),
+                    message: msg,
+                    ..Default::default()
+                });
+            }
         }
     }
+
+    // Filter/Map severity based on config.severity if needed
+    // For now, we stick to rule-defined severities but could override.
 
     diagnostics
 }
@@ -201,6 +229,7 @@ fn check_semicolons(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
                                 is_continuation = true;
                             }
                         }
+                        // Add other continuations if needed
                     }
 
                     if !is_continuation {
@@ -282,6 +311,84 @@ fn check_semicolons(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
     diagnostics
 }
 
+fn check_missing_comma(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
+    let mut diagnostics = Vec::new();
+    
+    // Keywords that are valid starts of a new clause/expression/operator, so they don't need a preceding comma
+    let clause_starters = [
+        "FROM", "WHERE", "GROUP", "ORDER", "HAVING", "LIMIT", "OFFSET", "UNION", "LATERAL", "DISTINCT",
+        "JOIN", "INNER", "LEFT", "RIGHT", "FULL", "CROSS", "ON", "AS", "USING", "WINDOW",
+        "AND", "OR", "XOR", "CASE", "WHEN", "THEN", "ELSE", "END", "IS", "NOT", "IN", "BETWEEN", "LIKE", "RLIKE", "REGEXP",
+        "OVER", "PARTITION", "BY", "ROWS", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "CURRENT", "ROW"
+    ];
+
+    // println!("Tokens: {:?}", tokens.iter().map(|t| &t.token).collect::<Vec<_>>());
+
+    for i in 0..tokens.len() {
+        let t1 = &tokens[i];
+        
+        if let Token::Word(w1) = &t1.token {
+            // Look ahead for next non-whitespace token
+            let mut j = i + 1;
+            while j < tokens.len() {
+                match &tokens[j].token {
+                    Token::Whitespace(_) => j += 1,
+                    // Skip comments if they exist in enum, assuming they might be handled or we just stop at Words
+                    // For now, just skipping whitespace is the critical fix.
+                    _ => break,
+                }
+            }
+            
+            if j >= tokens.len() {
+                continue;
+            }
+            
+            let t2 = &tokens[j];
+            
+            if let Token::Word(w2) = &t2.token {
+                // Check if they are on different lines
+                if t1.span.end.line < t2.span.start.line {
+                    
+                    let u1 = w1.value.to_uppercase();
+                    let u2 = w2.value.to_uppercase();
+                    
+                    // If second word is a known keyword that starts a clause, skip
+                    if clause_starters.contains(&u2.as_str()) {
+                        continue;
+                    }
+                    
+                    // If first word is a known keyword that starts a list (SELECT), skip
+                    if clause_starters.contains(&u1.as_str()) || u1 == "SELECT" {
+                        continue;
+                    }
+                    
+                    let range = Range {
+                        start: Position { 
+                            line: (t1.span.end.line - 1) as u32, 
+                            character: (t1.span.end.column - 1) as u32 
+                        },
+                        end: Position { 
+                            line: (t1.span.end.line - 1) as u32, 
+                            character: (t1.span.end.column - 1) as u32 
+                        },
+                    };
+
+                    diagnostics.push(Diagnostic {
+                        range,
+                        severity: Some(DiagnosticSeverity::WARNING),
+                        code: Some(NumberOrString::String("missing-comma".to_string())),
+                        source: Some("hql-ls".to_string()),
+                        message: "Possible missing comma between columns in SELECT list".to_string(),
+                        ..Default::default()
+                    });
+                }
+            }
+        }
+    }
+    
+    diagnostics
+}
+
 fn check_parentheses(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
     let mut diagnostics = Vec::new();
     let mut balance = 0;
@@ -351,15 +458,35 @@ fn is_significant(token: &Token) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::config::{LintingConfig, LintingRules};
 
     fn get_messages(diagnostics: &[Diagnostic]) -> Vec<String> {
         diagnostics.iter().map(|d| d.message.clone()).collect()
     }
 
+    fn default_config() -> LintingConfig {
+        let mut rules = LintingRules::default();
+        // Enable all rules for testing
+        rules.keyword_casing = true;
+        rules.semicolon = true;
+        rules.string_literal = true;
+        rules.parentheses = true;
+        rules.trailing_whitespace = true;
+        rules.missing_comma = true;
+        rules.hive_variable = true;
+        
+        LintingConfig {
+            enabled: true,
+            severity: "Warning".to_string(),
+            max_file_size: 1048576,
+            rules,
+        }
+    }
+
     #[test]
     fn test_keyword_casing() {
         let sql = "select * from users";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.iter().any(|m| m.contains("Keyword 'select' should be uppercase")));
         assert!(msgs.iter().any(|m| m.contains("Keyword 'from' should be uppercase")));
@@ -368,7 +495,7 @@ mod tests {
     #[test]
     fn test_keyword_casing_valid() {
         let sql = "SELECT * FROM users;";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.is_empty());
     }
@@ -376,7 +503,7 @@ mod tests {
     #[test]
     fn test_missing_semicolon_multi_query() {
         let sql = "SELECT * FROM users WHERE id = 1\n\nSELECT * FROM orders WHERE status = 'active';";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.iter().any(|m| m.contains("Missing semicolon")));
     }
@@ -384,15 +511,16 @@ mod tests {
     #[test]
     fn test_semicolon_valid() {
         let sql = "SELECT * FROM users; SELECT * FROM orders;";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(!msgs.iter().any(|m| m.contains("Missing semicolon")));
     }
 
+    // Ported from SemicolonRule - DDL and Subqueries
     #[test]
     fn test_semicolon_subquery_no_flag() {
         let sql = "SELECT *\nFROM users\nWHERE id IN (\n  SELECT user_id\n  FROM orders\n)\nAND created_date > '2024';";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(!msgs.iter().any(|m| m.contains("Missing semicolon")));
     }
@@ -400,7 +528,7 @@ mod tests {
     #[test]
     fn test_semicolon_ddl_no_flag() {
         let sql = "CREATE TABLE sales (id INT)\nPARTITIONED BY (year INT)\nSTORED AS PARQUET\nLOCATION '/data';";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(!msgs.iter().any(|m| m.contains("Missing semicolon")));
     }
@@ -408,7 +536,7 @@ mod tests {
     #[test]
     fn test_unbalanced_parentheses() {
         let sql = "SELECT * FROM users WHERE (id = 1";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.iter().any(|m| m.contains("Unbalanced parentheses")));
     }
@@ -416,7 +544,7 @@ mod tests {
     #[test]
     fn test_balanced_parentheses_complex() {
         let sql = "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE (amt > 100))";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(!msgs.iter().any(|m| m.contains("Unbalanced parentheses")));
     }
@@ -424,7 +552,7 @@ mod tests {
     #[test]
     fn test_trailing_whitespace() {
         let sql = "SELECT * FROM users \nWHERE id = 1";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.iter().any(|m| m.contains("Trailing whitespace")));
     }
@@ -432,7 +560,7 @@ mod tests {
     #[test]
     fn test_hive_variables() {
         let sql = "SELECT ${hiveconf:my_var} FROM table";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(!msgs.iter().any(|m| m.contains("Invalid Hive variable")));
     }
@@ -440,7 +568,7 @@ mod tests {
     #[test]
     fn test_hive_variables_invalid() {
         let sql = "SELECT ${invalid:var} FROM table";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.iter().any(|m| m.contains("Invalid namespace")));
     }
@@ -448,8 +576,26 @@ mod tests {
     #[test]
     fn test_hive_variables_empty() {
         let sql = "SELECT ${} FROM table";
-        let diags = lint(sql);
+        let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.iter().any(|m| m.contains("Empty Hive variable")));
+    }
+
+    #[test]
+    fn test_missing_comma() {
+        let sql = "SELECT id name FROM users;";
+        let diags = lint(sql, &default_config());
+        let msgs = get_messages(&diags);
+        // Heuristic only checks multiline to avoid flagging valid aliases 'SELECT col alias'
+        // So this should NOT have a warning.
+        assert!(msgs.is_empty());
+    }
+
+    #[test]
+    fn test_missing_comma_multiline() {
+        let sql = "SELECT\n  id\n  name\nFROM users";
+        let diags = lint(sql, &default_config());
+        let msgs = get_messages(&diags);
+        assert!(msgs.iter().any(|m| m.contains("Possible missing comma")));
     }
 }
