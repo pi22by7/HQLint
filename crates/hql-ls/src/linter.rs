@@ -179,50 +179,64 @@ fn check_semicolons(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
     ];
 
     let mut last_significant_token_idx: Option<usize> = None;
+    let mut paren_balance = 0;
 
     for (i, token_with_span) in tokens.iter().enumerate() {
         let token = &token_with_span.token;
         
-        // Check if this is a statement starter
-        if let Token::Word(w) = token {
-            let upper = w.value.to_uppercase();
-            if statement_starters.contains(&upper.as_str()) {
-                // Check previous significant token
-                if let Some(prev_idx) = last_significant_token_idx {
-                    let prev_token = &tokens[prev_idx].token;
-                    if !matches!(prev_token, Token::SemiColon) {
-                        // Found a new statement but previous didn't end with semicolon
-                        // Report error at the END of the previous token
-                        let prev_span = &tokens[prev_idx].span;
-                        let range = Range {
-                            start: Position { 
-                                line: (prev_span.end.line - 1) as u32, 
-                                character: (prev_span.end.column - 1) as u32 
-                            },
-                            end: Position { 
-                                line: (prev_span.end.line - 1) as u32, 
-                                character: (prev_span.end.column - 1) as u32 
-                            },
-                        };
+        match token {
+            Token::LParen => paren_balance += 1,
+            Token::RParen => if paren_balance > 0 { paren_balance -= 1 },
+            Token::Word(w) => {
+                // Check if this is a statement starter
+                let upper = w.value.to_uppercase();
+                if statement_starters.contains(&upper.as_str()) {
+                    // Only check for semicolons at top level (balance == 0)
+                    // Exception: WITH clause often starts at top level, but inside CTEs (WITH ... AS (SELECT ...))
+                    // SELECT appears inside parens.
+                    
+                    if paren_balance == 0 {
+                         // Check previous significant token
+                        if let Some(prev_idx) = last_significant_token_idx {
+                            let prev_token = &tokens[prev_idx].token;
+                            let is_semicolon = matches!(prev_token, Token::SemiColon) || 
+                                             matches!(prev_token, Token::Char(';'));
+                            
+                            if !is_semicolon {
+                                // Found a new statement but previous didn't end with semicolon
+                                // Report error at the END of the previous token
+                                let prev_span = &tokens[prev_idx].span;
+                                let range = Range {
+                                    start: Position { 
+                                        line: (prev_span.end.line - 1) as u32, 
+                                        character: (prev_span.end.column - 1) as u32 
+                                    },
+                                    end: Position { 
+                                        line: (prev_span.end.line - 1) as u32, 
+                                        character: (prev_span.end.column - 1) as u32 
+                                    },
+                                };
 
-                        diagnostics.push(Diagnostic {
-                            range,
-                            severity: Some(DiagnosticSeverity::INFORMATION), // Matches old rule severity
-                            code: Some(NumberOrString::String("missing-semicolon".to_string())),
-                            source: Some("hql-ls".to_string()),
-                            message: "Missing semicolon at end of statement".to_string(),
-                            ..Default::default()
-                        });
+                                diagnostics.push(Diagnostic {
+                                    range,
+                                    severity: Some(DiagnosticSeverity::INFORMATION),
+                                    code: Some(NumberOrString::String("missing-semicolon".to_string())),
+                                    source: Some("hql-ls".to_string()),
+                                    message: "Missing semicolon at end of statement".to_string(),
+                                    ..Default::default()
+                                });
+                            }
+                        }
                     }
                 }
-            }
+            },
+            _ => {}
         }
 
-        // Update last significant token (ignore whitespace/comments if tokenizer produced them, 
-        // but sqlparser usually skips them unless configured otherwise. 
-        // NOTE: tokenize_with_location() usually skips whitespace/comments by default 
-        // so all tokens here are "significant" mostly.
-        last_significant_token_idx = Some(i);
+        // Update last significant token if not whitespace or comment
+        if !matches!(token, Token::Whitespace(_)) {
+             last_significant_token_idx = Some(i);
+        }
     }
     
     diagnostics
@@ -289,5 +303,112 @@ fn is_keyword(word: &sqlparser::tokenizer::Word) -> bool {
         "JOIN" | "LEFT" | "RIGHT" | "INNER" | "OUTER" | "CROSS" | "ON" | "AS" | 
         "AND" | "OR" | "NOT" | "IN" | "EXISTS" | "BETWEEN" | "LIKE" | "CASE" | "WHEN" | "THEN" | "ELSE" | "END" |
         "INSERT" | "INTO" | "VALUES" | "UPDATE" | "DELETE" | "CREATE" | "TABLE" | "DROP" | "ALTER"
-    )
-}
+        )
+    }
+    
+    #[cfg(test)]
+    mod tests {
+        use super::*;
+    
+        fn get_messages(diagnostics: &[Diagnostic]) -> Vec<String> {
+            diagnostics.iter().map(|d| d.message.clone()).collect()
+        }
+    
+        #[test]
+        fn test_keyword_casing() {
+            let sql = "select * from users";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(msgs.iter().any(|m| m.contains("Keyword 'select' should be uppercase")));
+            assert!(msgs.iter().any(|m| m.contains("Keyword 'from' should be uppercase")));
+        }
+    
+        #[test]
+        fn test_keyword_casing_valid() {
+            let sql = "SELECT * FROM users";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(msgs.is_empty());
+        }
+    
+        #[test]
+        fn test_missing_semicolon_multi_query() {
+            let sql = "SELECT * FROM users WHERE id = 1\n\nSELECT * FROM orders WHERE status = 'active';";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(msgs.iter().any(|m| m.contains("Missing semicolon")));
+        }
+    
+        #[test]
+        fn test_semicolon_valid() {
+            let sql = "SELECT * FROM users; SELECT * FROM orders;";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(!msgs.iter().any(|m| m.contains("Missing semicolon")));
+        }
+    
+        // Ported from SemicolonRule - DDL and Subqueries
+        #[test]
+        fn test_semicolon_subquery_no_flag() {
+            let sql = "SELECT *\nFROM users\nWHERE id IN (\n  SELECT user_id\n  FROM orders\n)\nAND created_date > '2024';";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(!msgs.iter().any(|m| m.contains("Missing semicolon")));
+        }
+    
+        #[test]
+        fn test_semicolon_ddl_no_flag() {
+            let sql = "CREATE TABLE sales (id INT)\nPARTITIONED BY (year INT)\nSTORED AS PARQUET\nLOCATION '/data';";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(!msgs.iter().any(|m| m.contains("Missing semicolon")));
+        }
+    
+        #[test]
+        fn test_unbalanced_parentheses() {
+            let sql = "SELECT * FROM users WHERE (id = 1";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(msgs.iter().any(|m| m.contains("Unbalanced parentheses")));
+        }
+    
+        #[test]
+        fn test_balanced_parentheses_complex() {
+            let sql = "SELECT * FROM users WHERE id IN (SELECT user_id FROM orders WHERE (amt > 100))";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(!msgs.iter().any(|m| m.contains("Unbalanced parentheses")));
+        }
+    
+        #[test]
+        fn test_trailing_whitespace() {
+            let sql = "SELECT * FROM users \nWHERE id = 1";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(msgs.iter().any(|m| m.contains("Trailing whitespace")));
+        }
+    
+        #[test]
+        fn test_hive_variables() {
+            let sql = "SELECT ${hiveconf:my_var} FROM table";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(!msgs.iter().any(|m| m.contains("Invalid Hive variable")));
+        }
+    
+        #[test]
+        fn test_hive_variables_invalid() {
+            let sql = "SELECT ${invalid:var} FROM table";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(msgs.iter().any(|m| m.contains("Invalid namespace")));
+        }
+    
+        #[test]
+        fn test_hive_variables_empty() {
+            let sql = "SELECT ${} FROM table";
+            let diags = lint(sql);
+            let msgs = get_messages(&diags);
+            assert!(msgs.iter().any(|m| m.contains("Empty Hive variable")));
+        }
+    }
