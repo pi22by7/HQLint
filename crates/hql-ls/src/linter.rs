@@ -42,7 +42,7 @@ pub fn lint(text: &str, config: &LintingConfig) -> Vec<Diagnostic> {
                 diagnostics.extend(check_parentheses(&tokens));
             }
             if config.rules.missing_comma {
-                diagnostics.extend(check_missing_comma(&tokens));
+                diagnostics.extend(check_missing_comma(&tokens, text));
             }
         }
         Err(e) => {
@@ -311,7 +311,7 @@ fn check_semicolons(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
     diagnostics
 }
 
-fn check_missing_comma(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
+fn check_missing_comma(tokens: &[TokenWithSpan], text: &str) -> Vec<Diagnostic> {
     let mut diagnostics = Vec::new();
     
     // Keywords that are valid starts of a new clause/expression/operator, so they don't need a preceding comma
@@ -321,8 +321,6 @@ fn check_missing_comma(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
         "AND", "OR", "XOR", "CASE", "WHEN", "THEN", "ELSE", "END", "IS", "NOT", "IN", "BETWEEN", "LIKE", "RLIKE", "REGEXP",
         "OVER", "PARTITION", "BY", "ROWS", "RANGE", "UNBOUNDED", "PRECEDING", "FOLLOWING", "CURRENT", "ROW"
     ];
-
-    // println!("Tokens: {:?}", tokens.iter().map(|t| &t.token).collect::<Vec<_>>());
 
     for i in 0..tokens.len() {
         let t1 = &tokens[i];
@@ -349,19 +347,40 @@ fn check_missing_comma(tokens: &[TokenWithSpan]) -> Vec<Diagnostic> {
                 // Check if they are on different lines
                 if t1.span.end.line < t2.span.start.line {
                     
+                    // Extract text slice corresponding to t1 and the potential comma position
+                    let t1_end_line_text = text.lines().nth((t1.span.end.line - 1) as usize).unwrap_or("");
+                    let mut has_comma_after_t1 = false;
+                    // Check from t1.span.end.column to end of line
+                    let slice_start = (t1.span.end.column - 1) as usize;
+                    
+                    // Check bounds
+                    if slice_start < t1_end_line_text.len() {
+                         let remaining_line = &t1_end_line_text[slice_start..];
+                         
+                         if remaining_line.trim_start().starts_with(',') {
+                            has_comma_after_t1 = true;
+                         }
+                    }
+
+                    if has_comma_after_t1 {
+                        continue; // Comma already exists, no warning needed
+                    }
+                    
                     let u1 = w1.value.to_uppercase();
                     let u2 = w2.value.to_uppercase();
                     
-                    // If second word is a known keyword that starts a clause, skip
+                    // If second word is a known keyword that starts a clause, skip (e.g. `col FROM`)
                     if clause_starters.contains(&u2.as_str()) {
                         continue;
                     }
-                    
-                    // If first word is a known keyword that starts a list (SELECT), skip
+                    // If first word is a known keyword or `SELECT` (which starts a list), skip
+                    // e.g., `SELECT col` then `FROM` on next line is fine.
+                    // This is to avoid flagging `SELECT col FROM`
                     if clause_starters.contains(&u1.as_str()) || u1 == "SELECT" {
                         continue;
                     }
                     
+                    // Push diagnostic if we reach here, meaning no comma and not a known continuation
                     let range = Range {
                         start: Position { 
                             line: (t1.span.end.line - 1) as u32, 
@@ -597,5 +616,13 @@ mod tests {
         let diags = lint(sql, &default_config());
         let msgs = get_messages(&diags);
         assert!(msgs.iter().any(|m| m.contains("Possible missing comma")));
+    }
+
+    #[test]
+    fn test_missing_comma_with_comma_present() {
+        let sql = "SELECT\n  p.product_id,\n  p.product_name,\n  i.quantity\nFROM products p;";
+        let diags = lint(sql, &default_config());
+        let msgs = get_messages(&diags);
+        assert!(msgs.is_empty());
     }
 }

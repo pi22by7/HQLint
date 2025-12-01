@@ -56,7 +56,7 @@ impl Default for LintingRules {
             string_literal: true,
             parentheses: true,
             trailing_whitespace: true,
-            missing_comma: true,
+            missing_comma: false,
             hive_variable: true,
         }
     }

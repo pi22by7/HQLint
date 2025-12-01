@@ -638,5 +638,6 @@ LOCATION '/warehouse/sales/';`;
 
             assert.strictEqual(hasInvalidWarnings, 0, 'Should not have false positives across multiple different queries');
         });
+
     });
 });
