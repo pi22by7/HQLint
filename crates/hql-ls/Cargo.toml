@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2024"
 authors = ["HQL VSCode Team"]
 description = "A Language Server for Hive QL (HQL)"
+license = "Apache-2.0"
 
 [dependencies]
 tower-lsp = "0.20"

@@ -3,6 +3,7 @@
   "displayName": "HQLint - Hive QL Linter and Formatter",
   "description": "Real-time linting, formatting, and syntax highlighting for HQL (Hive Query Language)",
   "version": "0.6.0",
+  "license": "Apache-2.0",
   "publisher": "pi22by7",
   "repository": {
     "type": "git",
