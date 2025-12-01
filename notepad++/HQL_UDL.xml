@@ -1,0 +1,36 @@
+<NotepadPlus>
+	<UserLang name="HQL" ext="hql hive">
+		<Settings>
+			<Global caseIgnored="yes" />
+			<TreatAsSymbol comment="yes" commentLine="yes" />
+			<Prefix words1="no" words2="no" words3="no" words4="no" />
+		</Settings>
+		<KeywordLists>
+			<Keywords name="Delimiters">&quot;&apos;0&quot;&apos;0</Keywords>
+			<Keywords name="Folder+"></Keywords>
+			<Keywords name="Folder-"></Keywords>
+			<Keywords name="Operators">- ! % &amp; * / + &lt; = &gt;</Keywords>
+			<Keywords name="Comment">1/* 2*/ 0--</Keywords>
+			<Keywords name="Words1">ALL ALTER ANALYZE AND AS BETWEEN BUCKETS BY CASE CLUSTERED CREATE CROSS DATABASE DELETE DESC DESCRIBE DISTINCT DROP ELSE END EXCEPT EXISTS EXPLAIN EXPORT EXTERNAL FORMAT FROM FULL GROUP HAVING IF IMPORT IN INNER INSERT INTERSECT INTO IS JOIN LEFT LIKE LIMIT LOAD LOCATION MERGE MSCK NOT OF OFF ON OR ORDER OUTER OVERWRITE PARTITION PARTITIONED REGEXP RENAME RIGHT RLIKE ROW SCHEMA SELECT SERDE SET SHOW SORTED STORED TABLE TBLPROPERTIES TEMPORARY THEN TRUNCATE UNION UPDATE USING VALUES VIEW WHEN WHERE WITH</Keywords>
+			<Keywords name="Words2">ARRAY BIGINT BINARY BOOLEAN CHAR DATE DECIMAL DOUBLE FLOAT INT MAP NUMERIC SMALLINT STRING STRUCT TIMESTAMP TINYINT UNIONTYPE VARCHAR</Keywords>
+			<Keywords name="Words3">AVG CAST COALESCE COLLECT_LIST COLLECT_SET CONCAT COUNT DATE_ADD DATE_SUB DATEDIFF DAY DENSE_RANK EXPLODE FIRST_VALUE FROM_UNIXTIME HOUR ISNULL LAG LAST_VALUE LATERAL LEAD LENGTH LOWER LTRIM MAX MIN MINUTE MONTH NTILE NVL OVER RANK ROW_NUMBER RTRIM SECOND SUBSTR SUBSTRING SUM TRIM UNIX_TIMESTAMP UPPER YEAR</Keywords>
+			<Keywords name="Words4">FALSE NULL TRUE</Keywords>
+		</KeywordLists>
+		<Styles>
+			<WordsStyle name="DEFAULT" styleID="11" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="FOLDEROPEN" styleID="12" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="FOLDERCLOSE" styleID="13" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="KEYWORD1" styleID="5" fgColor="0000FF" bgColor="FFFFFF" fontName="" fontStyle="1" />
+			<WordsStyle name="KEYWORD2" styleID="6" fgColor="008080" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="KEYWORD3" styleID="7" fgColor="FF8000" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="KEYWORD4" styleID="8" fgColor="800080" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="COMMENT" styleID="1" fgColor="008000" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="COMMENT LINE" styleID="2" fgColor="008000" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="NUMBER" styleID="4" fgColor="FF0080" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="OPERATOR" styleID="10" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="1" />
+			<WordsStyle name="DELIMINER1" styleID="14" fgColor="808080" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="DELIMINER2" styleID="15" fgColor="808080" bgColor="FFFFFF" fontName="" fontStyle="0" />
+			<WordsStyle name="DELIMINER3" styleID="16" fgColor="000000" bgColor="FFFFFF" fontName="" fontStyle="0" />
+		</Styles>
+	</UserLang>
+</NotepadPlus>

@@ -1,27 +1,12 @@
-# Build outputs
+target/
+backup/
+**/*.vsix
+**/*.js.map
+*.d.ts
 out/
 dist/
-
-# Dependencies
 node_modules/
-
-# VS Code extension testing
 .vscode-test/
-
-# Packaged extension
-*.vsix
-
-# OS files
 .DS_Store
-
-# Test artifacts
-test-output.log
-
-# AI assistant files
-CLAUDE.md
-.claude/
-IMPROVEMENT_PLAN.md
-API.md
-
-# In-Memoria database files
+*.db
 in-memoria*
