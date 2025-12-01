@@ -54,7 +54,10 @@ export function activate(context: vscode.ExtensionContext) {
     };
 
     const clientOptions: LanguageClientOptions = {
-        documentSelector: [{ scheme: 'file', language: 'hql' }],
+        documentSelector: [
+            { scheme: 'file', language: 'hql' },
+            { scheme: 'untitled', language: 'hql' }
+        ],
         synchronize: {
             fileEvents: vscode.workspace.createFileSystemWatcher('**/.clientrc')
         }
